@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>政壇鬼抓人</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght{700;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=3">
+    <style>
+        @keyframes bounce-and-land {
+            0% {
+                transform: translateY(-25%);
+                animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+            }
+
+            30% {
+                transform: translateY(0);
+                animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+            }
+
+            50% {
+                transform: translateY(-15%);
+                animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+            }
+
+            70% {
+                transform: translateY(0);
+                animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+            }
+
+            85% {
+                transform: translateY(-5%);
+                animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+            }
+
+            100% {
+                transform: translateY(0);
+                animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+            }
+        }
+
+        .animate-bounce-twice {
+            animation: bounce-and-land 1.5s forwards;
+        }
+
+        /* Opening Card Animation */
+        @keyframes shuffle-deal {
+            0% {
+                opacity: 0;
+                transform: scale(0.2) translateY(300px) rotate(180deg);
+            }
+
+            40% {
+                opacity: 1;
+                transform: scale(1.2) translateY(0) rotate(-10deg);
+            }
+
+            60% {
+                transform: scale(1.1) rotate(5deg);
+            }
+
+            80% {
+                transform: scale(1.05) rotate(-3deg);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1) rotate(0);
+            }
+        }
+
+        .card-opening-anim {
+            opacity: 0;
+            /* Start hidden */
+            animation: shuffle-deal 2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        .fade-in-delayed {
+            opacity: 0;
+            animation: fadeIn 1s ease-out 1.5s forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Combined animation to prevent conflict/override */
+        .fade-in-then-pulse {
+            opacity: 0;
+            /* FadeIn: 1s duration, 1.5s delay. Pulse: 2s duration, infinite, 2.5s delay */
+            animation:
+                fadeIn 1s ease-out 1.5s forwards,
+                pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite 2.5s;
+        }
+
+
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: .5;
+            }
+        }
+    </style>
+</head>
+
+<body class="min-h-screen p-4 md:p-8">
+
+    <div id="start-screen"
+        class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gray-900 text-center p-4 hidden">
+        <h1 class="game-title text-5xl md:text-7xl font-bold text-white tracking-wider">政壇鬼抓人</h1>
+        <p class="text-2xl text-gray-400 mt-4 mb-10">「在權力迷霧中，看破所有對象！」</p>
+        <button id="start-game-btn"
+            class="py-3 px-10 bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold text-xl rounded-lg transition-colors shadow-lg animate-pulse">
+            開始調查
+        </button>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
+    <div id="game-container" class="max-w-7xl mx-auto hidden opacity-0 transition-opacity duration-1000">
+
+
+        <div id="game-stats" class="hud-container grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 p-4 rounded-lg">
+            <div class="text-center md:text-left border-r border-gray-700 pr-4">
+                <span class="hud-stat-label block mb-1">情報點數</span>
+                <span id="intelligence-points" class="hud-value block text-3xl text-yellow-400">100</span>
+            </div>
+            <div class="text-center md:text-left border-r border-gray-700 pr-4">
+                <span class="hud-stat-label block mb-1">調查身分</span>
+                <span id="solved-count" class="hud-value block text-3xl text-green-400">0 / 5</span>
+            </div>
+            <div class="text-center md:text-left">
+                <span class="hud-stat-label block mb-1">生命值</span>
+                <div id="health-bar" class="text-2xl mt-1 tracking-widest opacity-90">❤️❤️❤️❤️❤️</div>
+            </div>
+        </div>
+
+        <div id="dossier-container" class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6"></div>
+    </div>
+
+    <div id="setup-screen"
+        class="fixed inset-0 z-40 flex items-center justify-center p-4 bg-gray-900 hidden cursor-pointer">
+        <div class="w-full max-w-6xl text-center flex flex-col items-center justify-center h-full">
+
+            <!-- Cards Display Area (Shared by Layer 1 & 2) -->
+            <div class="mb-4">
+                <h2 id="setup-title"
+                    class="game-title text-6xl md:text-8xl font-bold text-white mb-8 fade-in-delayed transition-all duration-500">
+                    政壇鬼抓人</h2>
+                <p id="setup-subtitle"
+                    class="text-xl md:text-2xl text-yellow-500 font-bold fade-in-then-pulse transition-all duration-500 tracking-widest">
+                    《 點擊任意處開始調查 》</p>
+            </div>
+
+            <div id="stage-1-targets" class="flex justify-center gap-4 mb-4 overflow-visible p-4 w-full min-h-[200px]">
+                <!-- Cards will be generated by JS -->
+            </div>
+
+            <!-- LAYER 1: Slogan (Formerly Start Button) -->
+            <div id="layer1-controls" class="fade-in-delayed mt-12">
+                <div id="enter-rules-btn"
+                    class="py-2 px-8 text-gray-400 font-mono text-lg md:text-xl tracking-[0.3em] uppercase border-t border-b border-gray-700 inline-block pointer-events-none">
+                    在權力迷霧中，看破所有對象！
+                </div>
+            </div>
+
+            <!-- LAYER 2: Rules & Probe (Hidden initially) -->
+            <!-- LAYER 2: Mission Notebook (Hidden initially) -->
+            <!-- LAYER 2: Mission Notebook (Hidden initially) -->
+            <div id="layer2-controls"
+                class="hidden w-full max-w-6xl mx-auto flex-1 flex flex-col justify-center animate-fade-in-up relative z-50 pointer-events-auto">
+
+                <div
+                    class="relative bg-[#fdfbf7] text-gray-800 rounded-sm shadow-2xl p-6 md:p-10 transform rotate-1 border border-gray-300 max-h-[80vh] overflow-y-auto custom-scrollbar">
+                    <!-- Book Hinge (Visual only) -->
+                    <div class="absolute left-1/2 top-0 bottom-0 w-0 border-r border-gray-300 hidden md:block"></div>
+
+                    <!-- 2-Column Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+
+                        <!-- LEFT COLUMN: RULES -->
+                        <div class="flex flex-col relative">
+                            <!-- Header -->
+                            <div class="flex justify-between items-start mb-6 border-b-2 border-gray-800 pb-2">
+                                <div>
+                                    <h2 class="text-3xl font-black text-gray-900 tracking-tighter uppercase mb-1">遊戲規則說明
+                                    </h2>
+                                    <p class="font-mono text-sm text-gray-500 tracking-widest">// GAME RULES</p>
+                                </div>
+                            </div>
+
+                            <!-- Detailed Rules -->
+                            <div class="space-y-6 font-mono text-left text-xl text-black">
+                                <div class="flex items-start group">
+                                    <span class="mr-3 w-6">1.</span>
+                                    <p class="border-b border-gray-300 w-full pb-1">不斷提問來推理出角色的真實身分。</p>
+                                </div>
+                                <div class="flex items-start group">
+                                    <span class="mr-3 w-6">2.</span>
+                                    <p class="border-b border-gray-300 w-full pb-1">每次調查將消耗 5 點情報點數。</p>
+                                </div>
+                                <div class="flex items-start group">
+                                    <span class="mr-3 w-6">3.</span>
+                                    <p class="border-b border-gray-300 w-full pb-1">指認錯誤將扣除一點生命值。</p>
+                                </div>
+                                <div class="flex items-start group">
+                                    <span class="mr-3 w-6">4.</span>
+                                    <p class="border-b border-gray-300 w-full pb-1">在生命值歸零前調查出所有角色。</p>
+                                </div>
+                                <div class="flex items-start group">
+                                    <span class="mr-3 w-6">5.</span>
+                                    <p class="border-b border-gray-300 w-full pb-1">遊戲內容不對應任何真實人物及立場。</p>
+                                </div>
+                            </div>
+
+                            <!-- Stamp -->
+                            <img src="role/stamp.png?v=2"
+                                class="absolute bottom-0 right-4 w-28 md:w-36 opacity-70 transform -rotate-6 pointer-events-none mix-blend-multiply"
+                                alt="Confidential Stamp">
+                        </div>
+
+                        <!-- RIGHT COLUMN: ACTION -->
+                        <div class="flex flex-col relative p-2 md:p-4 rounded-lg">
+                            <div class="mb-4 text-left">
+                                <p class="text-2xl font-bold text-gray-900 border-l-4 border-gray-800 pl-3">詢問所有角色一個問題：
+                                </p>
+                            </div>
+
+                            <div id="a-card-options"
+                                class="grid grid-cols-2 gap-8 overflow-y-auto overflow-x-hidden custom-scrollbar p-1 pt-12">
+                                <!-- Options generated by JS (Sticky Notes) -->
+                            </div>
+
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+
+    <div id="b-card-draw-modal" class="modal fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+        <div
+            class="modal-content w-full max-w-4xl rounded-lg p-0 shadow-2xl overflow-hidden flex flex-col md:flex-row h-[85vh] md:h-[650px] folder-bg relative">
+
+
+
+            <div class="w-full md:w-1/4 bg-gray-800 p-4 border-r border-gray-700 flex flex-col items-center pt-8">
+                <!-- Target Photo in Sidebar -->
+                <div
+                    class="relative w-full max-w-[180px] aspect-[3/4] mb-6 rounded border border-gray-600 shadow-md overflow-hidden">
+                    <img id="investigation-target-img" class="w-full h-full object-cover" src="" alt="Target Photo">
+                </div>
+
+                <div class="space-y-1 flex-1 overflow-y-auto pl-2">
+                    <button class="category-btn" data-cat="age">詢問年齡門檻</button>
+                    <button class="category-btn" data-cat="power">詢問權力分立</button>
+                    <button class="category-btn" data-cat="level">詢問政府層級</button>
+                    <button class="category-btn" data-cat="origin">詢問產生方式</button>
+                </div>
+
+                <button id="cancel-b-card-draw-btn"
+                    class="mt-4 m-2 py-3 border border-gray-600 text-gray-400 hover:text-white hover:bg-gray-700 rounded transition-colors text-sm font-mono text-center">
+                    [ 關閉檔案 ]
+                </button>
+            </div>
+
+            <div
+                class="w-full md:w-3/4 bg-[#f3f4f6] paper-texture relative flex flex-col p-8 md:p-12 shadow-[inset_10px_0_20px_rgba(0,0,0,0.1)]">
+                <!-- Header V11 -->
+                <div class="border-b-2 border-gray-800 pb-2 mb-4">
+                    <div class="text-sm font-bold text-gray-500 uppercase tracking-widest mb-2">調查對象</div>
+
+                    <div class="flex flex-row items-baseline gap-5 mb-2">
+                        <div class="text-4xl font-black text-gray-900 font-mono tracking-tight" id="report-target-name">
+                        </div>
+                        <div class="text-2xl font-bold text-gray-600 font-mono tracking-wide" id="question-panel-title">
+                            請選擇調查類別</div>
+                    </div>
+                </div>
+
+                <div class="mb-4 text-right">
+                    <div class="text-sm font-normal bg-black text-white px-2 py-1 inline-block">
+                        消耗 5 點情報
+                    </div>
+                </div>
+                <div id="b-card-questions-list" class="flex-1 overflow-y-auto space-y-4 font-mono text-gray-800">
+                    <p class="text-gray-500 italic mt-10 text-center">
+                        &lt; 等待輸入：請點擊左側分類標籤以顯示可用問題 &gt;
+                    </p>
+                </div>
+            </div>
+
+            <div class="absolute bottom-4 right-4 text-xs text-gray-400 font-mono">
+                檔案編號: #882-991-X
+            </div>
+
+            <!-- Top Secret Stamp (Relocated) -->
+            <div
+                class="absolute bottom-20 right-8 pointer-events-none opacity-60 transform -rotate-12 mix-blend-multiply">
+                <div class="text-red-700 font-black border-4 border-red-700 w-48 h-16 flex items-center justify-center text-3xl tracking-[0.2em] uppercase"
+                    style="font-family: 'Courier New', monospace; mask-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=');">
+                    機密文件
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    </div>
+
+    <div id="guess-modal" class="modal fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+        <div class="modal-content w-full max-w-md rounded-lg p-6 shadow-xl border-2 border-yellow-600">
+            <h2 class="text-2xl font-bold text-white mb-2">身分指認</h2>
+            <p class="text-sm text-gray-400 mb-6">警告：錯誤指認將扣除 1 點生命值。</p>
+
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-300 mb-2">您認為對象是：</label>
+                <select id="guess-modal-select"
+                    class="w-full p-3 bg-gray-800 border border-gray-600 rounded-md text-white focus:ring-2 focus:ring-yellow-500 outline-none">
+                </select>
+            </div>
+
+            <div class="flex gap-3">
+                <button id="cancel-guess-btn"
+                    class="flex-1 py-3 bg-gray-700 hover:bg-gray-600 text-white font-bold rounded-lg transition-colors">
+                    再想想
+                </button>
+                <button id="submit-guess-btn"
+                    class="flex-1 py-3 bg-yellow-600 hover:bg-yellow-700 text-gray-900 font-bold rounded-lg transition-colors">
+                    確認指認
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Persistent Restart Controls (Semi-Transparent Modal) -->
+    <!-- Success Flash Overlay -->
+    <div id="success-flash-overlay" class="fixed inset-0 z-[70] hidden cursor-wait">
+        <div class="absolute inset-0 bg-green-900/30 animate-pulse"></div>
+        <div class="absolute inset-0 flex items-center justify-center">
+            <div
+                class="bg-black/80 border-y-4 border-emerald-500 w-full py-10 transform -rotate-3 scale-110 flex flex-col items-center justify-center shadow-[0_0_50px_rgba(16,185,129,0.5)]">
+                <h2 class="text-6xl md:text-8xl font-black text-emerald-500 tracking-widest uppercase animate-bounce-twice"
+                    style="text-shadow: 4px 4px 0 #000, -2px -2px 0 #000;">
+                    指認成功
+                </h2>
+                <p class="text-emerald-400 font-mono text-xl tracking-[1em] mt-4 uppercase blink">Target Confirmed</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Flash Overlay -->
+    <div id="error-flash-overlay" class="fixed inset-0 z-[70] hidden cursor-wait">
+        <div class="absolute inset-0 bg-red-900/30 animate-pulse"></div>
+        <div class="absolute inset-0 flex items-center justify-center">
+            <div
+                class="bg-black/80 border-y-4 border-red-600 w-full py-10 transform -rotate-3 scale-110 flex flex-col items-center justify-center shadow-[0_0_50px_rgba(220,38,38,0.5)]">
+                <h2 class="text-6xl md:text-8xl font-black text-red-600 tracking-widest uppercase animate-bounce-twice"
+                    style="text-shadow: 4px 4px 0 #000, -2px -2px 0 #000;">
+                    指認錯誤
+                </h2>
+                <p class="text-red-400 font-mono text-xl tracking-[1em] mt-4 uppercase blink">Target Mismatch</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Persistent Restart Controls (Themed Modal) -->
+    <div id="end-game-overlay"
+        class="fixed inset-0 z-[60] bg-black bg-opacity-40 flex items-center justify-center hidden opacity-0 transition-opacity duration-500">
+
+        <div id="end-game-box"
+            class="relative p-10 max-w-lg w-full transform scale-95 transition-all duration-300 shadow-2xl overflow-hidden group">
+
+            <!-- Texture/Decorations (Visible only for Win) -->
+            <div id="end-game-decorations" class="absolute inset-0 pointer-events-none transition-opacity duration-300">
+                <div class="absolute inset-0 opacity-10"
+                    style="background-image: repeating-linear-gradient(45deg, #000 0, #000 1px, transparent 0, transparent 50%); background-size: 10px 10px;">
+                </div>
+                <div class="absolute inset-0 border-4 border-gray-700 z-20" id="end-game-border"></div>
+                <!-- Corners -->
+                <div class="absolute top-2 left-2 w-4 h-4 border-t-2 border-l-2 border-gray-500 z-20"></div>
+                <div class="absolute top-2 right-2 w-4 h-4 border-t-2 border-r-2 border-gray-500 z-20"></div>
+                <div class="absolute bottom-2 left-2 w-4 h-4 border-b-2 border-l-2 border-gray-500 z-20"></div>
+                <div class="absolute bottom-2 right-2 w-4 h-4 border-b-2 border-r-2 border-gray-500 z-20"></div>
+            </div>
+
+            <div class="text-center relative z-10 py-4">
+                <h3 id="end-game-title" class="mb-6 flex justify-center items-center">
+                    <!-- Title Inserted via JS -->
+                </h3>
+
+                <div id="end-game-desc-container">
+                    <p id="end-game-desc"
+                        class="text-gray-400 text-sm font-mono tracking-[0.2em] mb-10 border-t border-b border-gray-800 py-3 mx-auto max-w-[80%] uppercase">
+                        <!-- Desc Inserted via JS -->
+                    </p>
+                </div>
+
+                <button onclick="location.reload()"
+                    class="relative inline-flex items-center justify-center px-10 py-4 overflow-hidden font-bold text-white transition-all duration-300 bg-gray-800 border-2 border-gray-600 hover:border-white group-hover:shadow-[0_0_20px_rgba(255,255,255,0.1)] roundedable">
+                    <span
+                        class="absolute inset-0 w-full h-full -mt-1 rounded-lg opacity-30 bg-gradient-to-b from-transparent via-transparent to-gray-700"></span>
+                    <span
+                        class="relative text-xl tracking-[0.2em] uppercase group-hover:text-yellow-400 transition-colors">重新開始</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== 1. 資料庫 (修正並內建) ==========
+
+        // 資料容器
+        let ROLES_DATA = {};
+        let CARDS_DATA = {};
+        // 將圖片列表直接寫入程式碼，避免 fetch 失敗導致沒有圖片
+        let CHARACTERS_DATA = [
+            "侯友宜.png",
+            "柯文哲.png",
+            "王世堅.png",
+            "賴清德.png",
+            "韓國瑜.png",
+            "黃國昌.png",
+            "沈伯洋.png",
+            "盧秀燕.png",
+            "黃捷.png",
+            "鄭麗文.png"
+        ];
+
+        // 載入資料
+        async function loadGameData() {
+            try {
+                const timestamp = new Date().getTime();
+                const [rolesRes, cardsRes] = await Promise.all([
+                    fetch(`roles.json?t=${timestamp}`),
+                    fetch(`cards.json?t=${timestamp}`)
+                ]);
+
+                if (!rolesRes.ok || !cardsRes.ok) throw new Error('Failed to load data files');
+
+                const rolesJson = await rolesRes.json();
+                const cardsJson = await cardsRes.json();
+
+                ROLES_DATA = rolesJson;
+                CARDS_DATA = cardsJson;
+
+                // 處理 Cards 邏輯轉換
+                for (let key in CARDS_DATA) {
+                    const card = CARDS_DATA[key];
+                    if (card.condition) {
+                        card.test = createTestFunction(card.condition);
+                    } else {
+                        console.warn(`Card ${key} missing condition!`);
+                        card.test = () => false; // Fallback
+                    }
+                }
+
+                return true;
+            } catch (e) {
+                console.error("Error loading game data:", e);
+                alert("無法載入遊戲資料，請確認您是透過伺服器 (Localhost) 開啟此網頁。檔案協定 (file://) 可能會被瀏覽器阻擋讀取 JSON。");
+                return false;
+            }
+        }
+
+        // 測試函數產生器
+        function createTestFunction(condition) {
+            return (role) => {
+                if (!role) return false;
+                const val = role[condition.field];
+                if (Array.isArray(condition.value)) {
+                    return condition.value.includes(val);
+                }
+                return val === condition.value;
+            };
+        }
+
+        // ========== 2. 遊戲邏輯與狀態 ==========
+
+        const CONFIG = {
+            TOTAL_ROLES: 5,
+            INITIAL_INTEL: 100,
+            INITIAL_HP: 5,
+            COST_A_CARD: 0, // 初始免費
+            COST_B_CARD: 5
+        };
+
+        let state = {
+            rolesInPlay: [],  // {id, roleData, characterName, characterImage}
+            dossiers: [],     // {id, isSolved, clues: [], possibilities: Set}
+            intel: 100,
+            hp: 5,
+            solvedCount: 0,
+            selectedACard: null,
+            targetIndex: null,
+            gameStatus: 'playing' // playing, won, lost
+        };
+
+        // DOM 捷徑
+        const $ = s => document.querySelector(s);
+        const $$ = s => document.querySelectorAll(s);
+
+        // 初始化
+        async function initGame() {
+            const Loaded = await loadGameData();
+            if (!Loaded) return;
+
+            $('#start-screen').classList.add('hidden');
+
+            // 隨機選 5 個角色 (邏輯)
+            const allRoleKeys = Object.keys(ROLES_DATA);
+            const shuffledRoles = allRoleKeys.sort(() => 0.5 - Math.random());
+            const selectedRoleKeys = shuffledRoles.slice(0, 5);
+
+            // 隨機選 5 個角色形象 (外觀)
+            // 如果圖片少於 5 張，則允許重複或循環使用
+            let selectedCharacters = [];
+            if (CHARACTERS_DATA.length >= 5) {
+                const shuffledChars = CHARACTERS_DATA.sort(() => 0.5 - Math.random());
+                selectedCharacters = shuffledChars.slice(0, 5);
+            } else {
+                // 補救措施：如果圖片不足，重複使用
+                while (selectedCharacters.length < 5) {
+                    selectedCharacters = selectedCharacters.concat(CHARACTERS_DATA);
+                }
+                selectedCharacters = selectedCharacters.slice(0, 5).sort(() => 0.5 - Math.random());
+            }
+
+            state = {
+                rolesInPlay: selectedRoleKeys.map((k, i) => {
+                    const charFilename = selectedCharacters[i];
+                    // 移除副檔名作為名字 (e.g., "賴清德.png" -> "賴清德")
+                    const charName = charFilename.substring(0, charFilename.lastIndexOf('.')) || charFilename;
+
+                    return {
+                        id: k,
+                        ...ROLES_DATA[k],
+                        characterImage: `role/${encodeURIComponent(charFilename)}`,
+                        characterName: charName
+                    };
+                }),
+                dossiers: selectedRoleKeys.map((k, i) => ({
+                    index: i,
+                    isSolved: false,
+                    clues: [],
+                    possibilities: new Set(allRoleKeys) // 初始所有人都可能
+                })),
+                intel: CONFIG.INITIAL_INTEL,
+                hp: CONFIG.INITIAL_HP,
+                solvedCount: 0,
+                selectedACard: null,
+                targetIndex: null,
+                gameStatus: 'playing'
+            };
+
+            // UI 重置
+            updateHUD();
+            renderDossiers();
+
+            // 顯示 A 卡選擇 (Stage 1)
+            // 顯示 A 卡選擇 (Stage 1) - Initial Setup Screen (Layer 1)
+            renderStage1Cards();
+            renderACardSelection();
+            $('#game-container').classList.remove('hidden');
+            setTimeout(() => $('#game-container').style.opacity = '1', 100);
+
+            // Show Setup Screen (Layer 1 active by default)
+            $('#setup-screen').classList.remove('hidden');
+            $('#layer1-controls').classList.remove('hidden');
+            $('#layer2-controls').classList.add('hidden');
+
+            // Reset Titles for Layer 1
+            $('#setup-title').innerText = "政壇鬼抓人";
+            $('#setup-subtitle').innerText = "點擊任意處開始調查";
+            $('#setup-subtitle').classList.remove('hidden');
+
+            // Explicitly trigger animation after screen is visible to ensure it runs
+            requestAnimationFrame(() => {
+                const cards = $$('#stage-1-targets > div');
+                cards.forEach((card, i) => {
+                    card.classList.add('card-opening-anim');
+                    card.style.animationDelay = `${i * 0.2}s`; // Stagger effect
+                });
+            });
+        }
+
+        // --- 核心邏輯：可能性計算 ---
+        function calculatePossibilities(dossierIndex) {
+            const dossier = state.dossiers[dossierIndex];
+            const clues = dossier.clues;
+            const newSet = new Set();
+
+            for (let roleKey of Object.keys(ROLES_DATA)) {
+                const roleData = ROLES_DATA[roleKey];
+                let isPossible = true;
+
+                for (let clue of clues) {
+                    // 執行卡片測試邏輯
+                    const testFunc = CARDS_DATA[clue.cardId].test;
+                    if (testFunc(roleData) !== clue.result) {
+                        isPossible = false;
+                        break;
+                    }
+                }
+
+                if (isPossible) newSet.add(roleKey);
+            }
+            dossier.possibilities = newSet;
+            return newSet.size;
+        }
+
+        // --- UI 渲染 ---
+
+        function updateHUD() {
+            $('#intelligence-points').innerText = state.intel;
+            $('#solved-count').innerText = `${state.solvedCount} / 5`;
+            $('#health-bar').innerText = "❤️".repeat(state.hp) + "🤍".repeat(CONFIG.INITIAL_HP - state.hp);
+
+            // 檢查失敗條件
+            if (state.hp <= 0 && state.gameStatus !== 'lost') {
+                setTimeout(() => {
+                    endGame(false, "hp");
+                }, 2500); // 延遲 2.5 秒
+            } else if (state.intel <= 0 && state.solvedCount < 5 && state.gameStatus !== 'lost') {
+                // 不直接結束
+            }
+        }
+
+        function renderDossiers() {
+            const container = $('#dossier-container');
+            container.innerHTML = '';
+
+            state.dossiers.forEach((d, i) => {
+                const count = d.possibilities.size;
+                const roleData = state.rolesInPlay[i];
+                const charName = roleData.characterName;
+                const trueRoleName = roleData.name;
+
+                const el = document.createElement('div');
+                el.className = `dossier rounded-t-lg p-0 flex flex-col h-full overflow-hidden ${d.isSolved ? 'dossier-solved' : ''}`;
+
+                let content = '';
+                if (d.isSolved) {
+                    content = `
+                        <!-- Harmonious Solved Header -->
+                        <div class="bg-emerald-950 p-3 border-b border-emerald-800 flex justify-between items-center relative overflow-hidden">
+                            <h3 class="font-mono font-bold text-emerald-400 tracking-wider">調查成功</h3>
+                            <span class="text-yellow-500 font-bold">✓</span>
+                        </div>
+                        
+                        <div class="p-4 flex flex-col flex-1 bg-gray-800 bg-opacity-50">
+                            <!-- Image + Name (Original Style) -->
+                            <div class="flex flex-col items-center mb-4 text-center">
+                                <div class="w-32 h-40 bg-gray-300 border-2 border-gray-500 shadow-sm relative shrink-0 transform rotate-[-1deg] mb-2">
+                                    <img src="${roleData.characterImage}" class="w-full h-full object-cover object-top" alt="${charName}">
+                                    <div class="absolute -bottom-2 right-1/2 translate-x-1/2 w-4 h-4 rounded-full bg-gray-400 border border-gray-500 shadow-inner"></div> <!-- Pin -->
+                                </div>
+                                <div class="text-center w-full">
+                                    <div class="text-xl font-bold text-white border-b border-gray-600 pb-1 inline-block px-4">${charName}</div>
+                                </div>
+                            </div>
+
+                            <!-- Clues List (Restored) -->
+                            <div class="flex-1 min-h-[100px] bg-black bg-opacity-40 rounded p-2 mb-3 border border-gray-700 font-mono text-xs overflow-y-auto custom-scrollbar">
+                                ${d.clues.length === 0 ? '<span class="text-gray-500 italic">尚無調查紀錄</span>' : ''}
+                                ${d.clues.map(c => `
+                                    <div class="flex justify-between py-1 border-b border-gray-800 last:border-0">
+                                        <span class="text-gray-400 truncate pr-2" title="${CARDS_DATA[c.cardId].text}">${CARDS_DATA[c.cardId].text}</span>
+                                        <span class="${c.result ? 'clue-true' : 'clue-false'}">${c.result ? '是' : '否'}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+
+                            <!-- True Role Name Footer (Green) -->
+                            <div class="w-full py-2 bg-emerald-700 text-white font-bold rounded shadow text-sm uppercase tracking-wide text-center mt-auto cursor-default border border-emerald-600">
+                                ${trueRoleName}
+                            </div>
+                        </div>
+                    `;
+                } else if (state.gameStatus === 'lost' && !d.isSolved) {
+                    // FAILED / REVEALED STATE (Red Theme, Full Info)
+                    content = `
+                        <!-- Failed Header -->
+                        <div class="bg-red-950 p-3 border-b border-red-800 flex justify-between items-center relative overflow-hidden">
+                            <h3 class="font-mono font-bold text-red-500 tracking-wider">調查終止</h3>
+                            <span class="text-red-600 font-bold">✕</span>
+                        </div>
+                        
+                        <div class="p-4 flex flex-col flex-1 bg-gray-800 bg-opacity-50">
+                            <!-- Image + Name (Original Style) -->
+                            <div class="flex flex-col items-center mb-4 text-center">
+                                <div class="w-32 h-40 bg-gray-300 border-2 border-gray-500 shadow-sm relative shrink-0 transform rotate-[1deg] mb-2">
+                                    <img src="${roleData.characterImage}" class="w-full h-full object-cover object-top" alt="${charName}">
+                                    <div class="absolute -bottom-2 right-1/2 translate-x-1/2 w-4 h-4 rounded-full bg-gray-400 border border-gray-500 shadow-inner"></div> <!-- Pin -->
+                                </div>
+                                <div class="text-center w-full">
+                                    <div class="text-xl font-bold text-white border-b border-gray-600 pb-1 inline-block px-4">${charName}</div>
+                                </div>
+                            </div>
+
+                            <!-- Clues List (Restored) -->
+                            <div class="flex-1 min-h-[100px] bg-black bg-opacity-40 rounded p-2 mb-3 border border-gray-700 font-mono text-xs overflow-y-auto custom-scrollbar">
+                                ${d.clues.length === 0 ? '<span class="text-gray-500 italic">尚無調查紀錄</span>' : ''}
+                                ${d.clues.map(c => `
+                                    <div class="flex justify-between py-1 border-b border-gray-800 last:border-0">
+                                        <span class="text-gray-400 truncate pr-2" title="${CARDS_DATA[c.cardId].text}">${CARDS_DATA[c.cardId].text}</span>
+                                        <span class="${c.result ? 'clue-true' : 'clue-false'}">${c.result ? '是' : '否'}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+
+                            <!-- True Role Name Footer (Red) -->
+                            <div class="w-full py-2 bg-red-900 text-red-100 font-bold rounded shadow text-sm uppercase tracking-wide text-center mt-auto cursor-default border border-red-800">
+                                ${trueRoleName}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    content = `
+                        <!-- Header Tab -->
+                        <div class="bg-gray-800 p-3 border-b border-gray-600 flex justify-between items-center">
+                            <h3 class="font-mono font-bold text-gray-200 tracking-wider">檔案編號 #${i + 1}</h3>
+                            <span class="text-xs font-mono ${count <= 2 ? 'text-red-400' : 'text-gray-400'}">
+                                可能性: ${count}
+                            </span>
+                        </div>
+                        
+                        <div class="p-4 flex flex-col flex-1 bg-gray-800 bg-opacity-50">
+                            <!-- Enlarge Image Container -->
+                            <div class="flex flex-col items-center mb-4">
+                                <div class="w-32 h-40 bg-gray-300 border-2 border-gray-500 shadow-sm relative shrink-0 transform rotate-[-1deg] mb-2 group cursor-magnify group-hover:border-yellow-500 group-hover:shadow-[0_0_10px_rgba(251,191,36,0.3)] transition-all duration-300"
+                                     onclick="openInvestigationPanel(${i})">
+                                    <img src="${roleData.characterImage}" class="w-full h-full object-cover object-top transition-all duration-300 group-hover:scale-105 group-hover:brightness-110" alt="${charName}">
+                                    <div class="absolute -bottom-2 right-1/2 translate-x-1/2 w-4 h-4 rounded-full bg-gray-400 border border-gray-500 shadow-inner"></div> <!-- Pin -->
+                                </div>
+                                <div class="text-center w-full">
+                                    <div class="text-xl font-bold text-white border-b border-gray-600 pb-1 inline-block px-4">${charName}</div>
+                                </div>
+                            </div>
+
+                            <div class="flex-1 min-h-[100px] bg-black bg-opacity-40 rounded p-2 mb-3 border border-gray-700 font-mono text-xs overflow-y-auto custom-scrollbar">
+                                ${d.clues.length === 0 ? '<span class="text-gray-500 italic">尚無調查紀錄</span>' : ''}
+                                ${d.clues.map(c => `
+                                    <div class="flex justify-between py-1 border-b border-gray-800 last:border-0">
+                                        <span class="text-gray-400 truncate pr-2" title="${CARDS_DATA[c.cardId].text}">${CARDS_DATA[c.cardId].text}</span>
+                                        <span class="${c.result ? 'clue-true' : 'clue-false'}">${c.result ? '是' : '否'}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            
+                            <button class="w-full py-2 bg-yellow-600 hover:bg-yellow-500 text-gray-900 font-bold rounded shadow transition-colors text-sm uppercase tracking-wide" onclick="openGuessModal(${i})">
+                                確認身分
+                            </button>
+                        </div>
+                    `;
+                }
+
+                el.innerHTML = content;
+                container.appendChild(el);
+            });
+        }
+
+
+        // --- A 卡流程 ---
+
+        function renderStage1Cards() {
+            const container = $('#stage-1-targets');
+            // 隨機角度陣列，營造散亂感
+            const rotations = [-3, -1, 0, 1, 3]; // 角度變小，更像整理過的文件
+
+            container.innerHTML = state.rolesInPlay.map((role, i) => `
+            <div class="photo-card w-40 h-56 flex flex-col items-center justify-start overflow-hidden relative"
+        style="transform: rotate(${rotations[i]}deg); z-index: ${i === 2 ? 10 : 0};">
+
+        <div class="w-full h-full bg-gray-200 overflow-hidden relative">
+            <img src="${role.characterImage}" class="w-full h-full object-cover object-top opacity-90"
+                alt="${role.characterName}">
+        </div>
+
+        <div class="absolute bottom-2 left-0 right-0 text-center">
+            <span
+                class="font-mono text-gray-800 font-bold text-sm tracking-widest uppercase border-b-2 border-gray-800 pb-1">
+                ${role.characterName}
+            </span>
+        </div>
+
+        <!--蓋章效果(裝飾) -->
+            <div
+                class="absolute top-2 right-2 border-2 border-red-600 text-red-600 text-[10px] px-1 font-bold transform rotate-12 opacity-60">
+                目標對象
+            </div>
+    </div>
+            `).join('');
+        }
+
+        function renderACardSelection() {
+            const container = $('#a-card-options');
+            const aKeys = Object.keys(CARDS_DATA).filter(k => CARDS_DATA[k].type === 'A');
+
+            // 5種常見的便利貼顏色設定 (背景色, 邊框色, 懸停色)
+            const colors = [
+                { bg: 'bg-yellow-200', border: 'border-yellow-100', hover: 'hover:bg-yellow-300' },
+                { bg: 'bg-green-200', border: 'border-green-100', hover: 'hover:bg-green-300' },
+                { bg: 'bg-pink-200', border: 'border-pink-100', hover: 'hover:bg-pink-300' },
+                { bg: 'bg-blue-200', border: 'border-blue-100', hover: 'hover:bg-blue-300' },
+                { bg: 'bg-orange-200', border: 'border-orange-100', hover: 'hover:bg-orange-300' }
+            ];
+
+            let html = aKeys.map((k, index) => {
+                const c = colors[index % colors.length]; // 循環使用顏色
+                return `
+            <div data-color-idx="${index % colors.length}" class="card card-a relative p-2 mb-0 ${c.bg} shadow-sm border-t ${c.border} ${c.hover} hover:scale-[1.02] hover:-rotate-1 transition-all duration-200 cursor-pointer min-h-[70px] w-[85%] mx-auto flex flex-col justify-center overflow-hidden" onclick="selectACard('${k}', this)">
+                <!-- Tape (Scotch Tape Style) -->
+                <div class="absolute top-0 right-0 w-6 h-6 bg-gray-100/90 transform rotate-45 translate-x-3 -translate-y-3 shadow-sm backdrop-blur-[1px]"></div>
+                <!-- Selection Mark (Red Circle) -->
+                <div class="selection-mark absolute inset-0 pointer-events-none opacity-0 transition-opacity duration-200 flex items-center justify-center">
+                    <svg class="w-full h-full text-red-600 opacity-80 transform scale-110" viewBox="0 0 100 60" preserveAspectRatio="none" style="filter: drop-shadow(0px 1px 1px rgba(0,0,0,0.1));">
+                        <ellipse cx="50" cy="30" rx="45" ry="25" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="stroke-dasharray: 200; stroke-dashoffset: 0;" />
+                    </svg>
+                </div>
+                <!-- Text -->
+                <div class="font-serif font-bold text-gray-900 text-sm md:text-base leading-tight text-center pointer-events-none relative z-10">${CARDS_DATA[k].text}</div>
+            </div>
+            `}).join('');
+
+            html += `
+            <div class="col-span-1 flex items-center justify-center">
+                <button id="confirm-a-card-btn" onclick="confirmStage1Action()"
+                    class="group flex items-center gap-2 text-gray-800 font-bold text-lg tracking-widest uppercase transition-all duration-500 opacity-0 pointer-events-none translate-x-0 hover:text-black"
+                    disabled>
+                    <span>開始調查</span>
+                    <span class="text-xl transform group-hover:translate-x-1 transition-transform duration-300">►</span>
+                </button>
+            </div>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        window.selectACard = function (key, el) {
+            // Remove previous selection visuals
+            $$('.card-a').forEach(c => {
+                c.classList.remove('card-selected');
+                const mark = c.querySelector('.selection-mark');
+                if (mark) mark.classList.remove('opacity-100');
+            });
+
+            // Add new selection visuals
+            el.classList.add('card-selected');
+            const mark = el.querySelector('.selection-mark');
+            if (mark) mark.classList.add('opacity-100');
+
+            state.selectedACard = key;
+            const btn = $('#confirm-a-card-btn');
+            if (btn) {
+                btn.disabled = false;
+                btn.classList.remove('opacity-0', 'pointer-events-none', 'translate-x-0');
+                btn.classList.add('opacity-100', 'translate-x-4');
+            }
+        };
+
+        window.confirmStage1Action = function () {
+            if (!state.selectedACard) return;
+
+            // 執行廣域調查
+            const card = CARDS_DATA[state.selectedACard];
+            state.rolesInPlay.forEach((role, idx) => {
+                const result = card.test(role);
+                state.dossiers[idx].clues.push({
+                    cardId: state.selectedACard,
+                    result: result
+                });
+                calculatePossibilities(idx);
+            });
+
+            // Update UI
+            // Close Setup Screen
+            $('#setup-screen').classList.add('hidden');
+            renderDossiers();
+        };
+
+        // Layer 1 -> Layer 2 Transition (Click Anywhere)
+        $('#setup-screen').addEventListener('click', (e) => {
+            // Only trigger if we are in Layer 1 (Layer 1 controls are visible)
+            if ($('#layer1-controls').classList.contains('hidden')) return;
+
+            // 1. Hide Layer 1 Controls
+            $('#layer1-controls').classList.add('hidden');
+
+            // 2. Hide Header (Focus on Notebook)
+            $('#setup-title').classList.add('hidden');
+            $('#setup-subtitle').classList.add('hidden');
+
+            // 3. Hide Stage 1 Cards (Requested: remove the characters display)
+            $('#stage-1-targets').classList.add('hidden');
+
+            // 4. Show Layer 2 Controls (Notebook)
+            $('#layer2-controls').classList.remove('hidden');
+        });
+
+        // Prevent clicks inside the notebook from bubbling up (safety)
+        $('#layer2-controls').addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+
+        // --- B 卡流程 (重構：主動調查) ---
+
+        window.openInvestigationPanel = function (index) {
+            state.targetIndex = index;
+            // Removed target modal line as it is no longer used
+
+            // UI 設定
+            const roleData = state.rolesInPlay[index];
+            $('#report-target-name').innerText = roleData.characterName;
+            $('#investigation-target-img').src = roleData.characterImage;
+            $('#question-panel-title').innerText = "// 請選擇調查類別"; // Reset Title
+            $('#b-card-draw-modal').classList.remove('hidden');
+
+            // 重置右側
+            $('#b-card-questions-list').innerHTML = '<p class="text-gray-500 italic col-span-2 text-center mt-10">請點擊左側分類以顯示問題</p>';
+            $$('.category-btn').forEach(b => b.classList.remove('active'));
+        };
+
+
+
+        // 分類按鈕點擊事件
+        $$('.category-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                $$('.category-btn').forEach(b => b.classList.remove('active'));
+                e.currentTarget.classList.add('active');
+
+                const cat = e.currentTarget.dataset.cat;
+                renderQuestionsByCategory(cat);
+            });
+        });
+
+        const categoryNames = {
+            'age': '// 詢問年齡門檻',
+            'power': '// 詢問職權性質',
+            'level': '// 詢問政府層級',
+            'origin': '// 詢問產生方式'
+        };
+
+        function renderQuestionsByCategory(category) {
+            const list = $('#b-card-questions-list');
+            const questions = Object.entries(CARDS_DATA)
+                .filter(([k, v]) => v.type === 'B' && v.category === category);
+
+            // 檢查該對象是否已經問過這些問題
+            const askedCards = new Set(state.dossiers[state.targetIndex].clues.map(c => c.cardId));
+
+            list.innerHTML = questions.map(([k, v]) => {
+                const isAsked = askedCards.has(k);
+                // 模擬打字機或手寫風格的列表項目
+                return `
+            <div class="py-2 border-b border-gray-300 flex justify-between items-center group transition-colors px-2
+                        ${isAsked ? 'line-through text-gray-400' : 'text-gray-800 highlighter-hover'} "
+        onclick="${isAsked ? '' : `executeInvestigation('${k}')`}" style="${isAsked ? 'cursor: not-allowed;' : ''}">
+
+            <div class="flex items-start gap-3">
+                <span class="font-medium text-lg leading-snug">${v.text}</span>
+            </div>
+
+        ${isAsked ?
+                        '<span class="text-xs font-bold text-red-600 border border-red-600 px-1 transform -rotate-12">已使用</span>' :
+                        '<span class="text-gray-400 group-hover:text-black">➥</span>'
+                    }
+    </div>
+            `;
+            }).join('');
+
+            $('#question-panel-title').innerText = categoryNames[category] || category.toUpperCase();
+        }
+
+        window.executeInvestigation = function (cardId) {
+            if (state.intel < CONFIG.COST_B_CARD) {
+                alert("點數不足");
+                return;
+            }
+            state.intel -= CONFIG.COST_B_CARD;
+
+            const role = state.rolesInPlay[state.targetIndex];
+            const card = CARDS_DATA[cardId];
+            const result = card.test(role);
+
+            // 紀錄
+            state.dossiers[state.targetIndex].clues.push({ cardId: cardId, result: result });
+            calculatePossibilities(state.targetIndex);
+
+            $('#b-card-draw-modal').classList.add('hidden');
+            updateHUD();
+            renderDossiers();
+        };
+
+        $('#cancel-b-card-draw-btn').addEventListener('click', () => {
+            $('#b-card-draw-modal').classList.add('hidden');
+        });
+
+        // --- 指認流程 ---
+
+        window.openGuessModal = function (index) {
+            state.targetIndex = index;
+            const select = $('#guess-modal-select');
+
+            // 只顯示邏輯上可能的角色 (為了方便玩家，也可以顯示全部但標註可能性)
+            // 這裡顯示目前資料庫中所有的角色名稱供選擇
+            const allRoles = Object.entries(ROLES_DATA).map(([k, v]) => ({ k, name: v.name }));
+            allRoles.sort((a, b) => a.name.localeCompare(b.name, 'zh-Hant'));
+
+            select.innerHTML = allRoles.map(r => `<option value="${r.k}">${r.name}</option>`).join('');
+
+            $('#guess-modal').classList.remove('hidden');
+        };
+
+        $('#submit-guess-btn').addEventListener('click', () => {
+            const guessKey = $('#guess-modal-select').value;
+            const realRole = state.rolesInPlay[state.targetIndex];
+
+            if (guessKey === realRole.id) {
+                // 答對
+                triggerSuccessFlash();
+                state.dossiers[state.targetIndex].isSolved = true;
+                state.solvedCount++;
+                state.intel += 20; // 指認成功獎勵
+                state.dossiers[state.targetIndex].possibilities = new Set([guessKey]); // 鎖定
+
+                $('#guess-modal').classList.add('hidden');
+                updateHUD();
+                renderDossiers();
+
+                if (state.solvedCount >= 5) {
+                    setTimeout(() => {
+                        endGame(true);
+                    }, 2500); // Wait 2.5s for flash
+                }
+            } else {
+                // 答錯
+                state.hp--;
+                $('#guess-modal').classList.add('hidden');
+                updateHUD(); // 會檢查是否 game over
+
+                // 震動效果或提示
+                triggerErrorFlash();
+            }
+        });
+
+        function triggerErrorFlash() {
+            const overlay = $('#error-flash-overlay');
+            overlay.classList.remove('hidden');
+            overlay.classList.remove('pointer-events-none'); // Removed pointer-events-none
+
+            // Play error sound if available (optional)
+
+            setTimeout(() => {
+                overlay.classList.add('hidden');
+                overlay.classList.add('pointer-events-none'); // Re-add pointer-events-none after hidden
+            }, 2500); // 顯示 2.5 秒
+        }
+
+        function triggerSuccessFlash() {
+            const overlay = $('#success-flash-overlay');
+            overlay.classList.remove('hidden');
+            overlay.classList.remove('pointer-events-none'); // Removed pointer-events-none
+
+            setTimeout(() => {
+                overlay.classList.add('hidden');
+                overlay.classList.add('pointer-events-none'); // Re-add pointer-events-none after hidden
+            }, 2500); // Show 2.5s for success
+        }
+
+        $('#cancel-guess-btn').addEventListener('click', () => {
+            $('#guess-modal').classList.add('hidden');
+        });
+
+        // --- 遊戲結束 ---
+
+        function endGame(isWin, reason) {
+            state.gameStatus = isWin ? 'won' : 'lost';
+            renderDossiers();
+
+            const overlay = $('#end-game-overlay');
+            const box = $('#end-game-box');
+            const title = $('#end-game-title');
+            const desc = $('#end-game-desc');
+            const descContainer = $('#end-game-desc-container');
+            const decorations = $('#end-game-decorations');
+
+            overlay.classList.remove('hidden');
+            setTimeout(() => {
+                overlay.classList.remove('opacity-0');
+                box.classList.remove('scale-95');
+                box.classList.add('scale-100');
+            }, 50);
+
+            // 移除容器限制以完整顯示印章
+            box.classList.remove('overflow-hidden', 'max-w-lg', 'w-full');
+
+            if (isWin) {
+                // WIN: 移除盒子樣式，只留印章 (如同失敗)
+                box.classList.remove('bg-[#1a1a1a]', 'shadow-2xl');
+                box.classList.add('bg-transparent', 'shadow-none');
+                decorations.classList.add('opacity-0');
+                descContainer.classList.add('hidden');
+
+                // Big Green Stamp
+                title.innerHTML = `
+                    <div class="transform -rotate-3 border-[8px] border-emerald-500 px-8 py-4 mask-image-grunge opacity-90 animate-pulse whitespace-nowrap mb-24">
+                        <span class="text-7xl md:text-8xl font-black text-emerald-500 tracking-[0.2em] shadow-green-500" style="text-shadow: 2px 2px 0px rgba(0,0,0,0.5);">調查完成</span>
+                    </div>`;
+
+            } else {
+                // LOSS: 移除盒子樣式，只留印章
+                box.classList.remove('bg-[#1a1a1a]', 'shadow-2xl');
+                box.classList.add('bg-transparent', 'shadow-none'); // 確保背景透明
+                decorations.classList.add('opacity-0'); // 隱藏裝飾邊框
+                descContainer.classList.add('hidden'); // 隱藏描述文字
+
+                // Big Red Stamp
+                title.innerHTML = `
+                    <div class="transform -rotate-3 border-[8px] border-red-600 px-8 py-4 mask-image-grunge opacity-90 animate-pulse whitespace-nowrap mb-24">
+                        <span class="text-7xl md:text-8xl font-black text-red-600 tracking-[0.2em] shadow-red-500" style="text-shadow: 2px 2px 0px rgba(0,0,0,0.5);">調查失敗</span>
+                    </div>`;
+            }
+        }
+
+        // Auto-start on load
+        window.addEventListener('load', async () => {
+            // Wait a brief moment for fonts/styles to settle
+            setTimeout(initGame, 100);
+        });
+
+    </script>
+</body>
+
+</html>

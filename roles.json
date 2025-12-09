@@ -1,0 +1,173 @@
+{
+    "president": {
+        "name": "總統",
+        "branch": "central",
+        "type": "executive",
+        "level": "central",
+        "isElected": true,
+        "ageLimit": 40,
+        "origin": "elected"
+    },
+    "premier": {
+        "name": "行政院長",
+        "branch": "central",
+        "type": "executive",
+        "level": "central",
+        "isElected": false,
+        "ageLimit": null,
+        "origin": "president_appointed"
+    },
+    "minister": {
+        "name": "內政部長",
+        "branch": "central",
+        "type": "executive",
+        "level": "central",
+        "isElected": false,
+        "ageLimit": null,
+        "origin": "president_appointed"
+    },
+    "auditor_general": {
+        "name": "審計長",
+        "branch": "central",
+        "type": "control",
+        "level": "central",
+        "isElected": false,
+        "ageLimit": null,
+        "origin": "president_nominated"
+    },
+    "ly_president": {
+        "name": "立法院院長",
+        "branch": "central",
+        "type": "legislative",
+        "level": "central",
+        "isElected": true,
+        "ageLimit": 23,
+        "origin": "member_elected"
+    },
+    "legislator": {
+        "name": "立法委員",
+        "branch": "central",
+        "type": "legislative",
+        "level": "central",
+        "isElected": true,
+        "ageLimit": 23,
+        "origin": "elected"
+    },
+    "grand_justice": {
+        "name": "大法官",
+        "branch": "central",
+        "type": "judicial",
+        "level": "central",
+        "isElected": false,
+        "ageLimit": null,
+        "origin": "president_nominated"
+    },
+    "special_mayor": {
+        "name": "直轄市市長",
+        "branch": "local",
+        "type": "executive",
+        "level": "special_municipality",
+        "isElected": true,
+        "ageLimit": 30,
+        "origin": "elected"
+    },
+    "county_mayor": {
+        "name": "縣(市)長",
+        "branch": "local",
+        "type": "executive",
+        "level": "county_city",
+        "isElected": true,
+        "ageLimit": 30,
+        "origin": "elected"
+    },
+    "township_mayor": {
+        "name": "鄉鎮市長",
+        "branch": "local",
+        "type": "executive",
+        "level": "township",
+        "isElected": true,
+        "ageLimit": 26,
+        "origin": "elected"
+    },
+    "district_admin": {
+        "name": "直轄市區長",
+        "branch": "local",
+        "type": "executive",
+        "level": "district",
+        "isElected": false,
+        "ageLimit": null,
+        "origin": "mayor_appointed"
+    },
+    "village_chief": {
+        "name": "村里長",
+        "branch": "local",
+        "type": "executive",
+        "level": "village",
+        "isElected": true,
+        "ageLimit": 23,
+        "origin": "elected"
+    },
+    "county_councilor": {
+        "name": "縣(市)議員",
+        "branch": "local",
+        "type": "legislative",
+        "level": "county_city",
+        "isElected": true,
+        "ageLimit": 23,
+        "origin": "elected"
+    },
+    "township_rep": {
+        "name": "鄉鎮市民代表",
+        "branch": "local",
+        "type": "legislative",
+        "level": "township",
+        "isElected": true,
+        "ageLimit": 23,
+        "origin": "elected"
+    },
+    "indigenous_district_exec": {
+        "name": "直轄市山地原住民區區長",
+        "branch": "local",
+        "type": "executive",
+        "level": "district",
+        "isElected": true,
+        "ageLimit": 26,
+        "origin": "elected"
+    },
+    "indigenous_district_rep": {
+        "name": "直轄市山地原住民區民代表",
+        "branch": "local",
+        "type": "legislative",
+        "level": "district",
+        "isElected": true,
+        "ageLimit": 23,
+        "origin": "elected"
+    },
+    "exam_president": {
+        "name": "考試院院長",
+        "branch": "central",
+        "type": "examination",
+        "level": "central",
+        "isElected": false,
+        "ageLimit": null,
+        "origin": "president_nominated"
+    },
+    "control_president": {
+        "name": "監察院院長",
+        "branch": "central",
+        "type": "control",
+        "level": "central",
+        "isElected": false,
+        "ageLimit": null,
+        "origin": "president_nominated"
+    },
+    "judicial_president": {
+        "name": "司法院院長",
+        "branch": "central",
+        "type": "judicial",
+        "level": "central",
+        "isElected": false,
+        "ageLimit": null,
+        "origin": "president_nominated"
+    }
+}

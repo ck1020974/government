@@ -1,0 +1,273 @@
+:root {
+    --bg-dark: #0f172a;
+    /* Slate 900 */
+    --bg-panel: #1e293b;
+    /* Slate 800 */
+    --text-main: #e2e8f0;
+    /* Slate 200 */
+    --text-muted: #94a3b8;
+    /* Slate 400 */
+    --accent-gold: #fbbf24;
+    /* Amber 400 */
+    --accent-red: #ef4444;
+    /* Red 500 */
+    --accent-blue: #3b82f6;
+    /* Blue 500 */
+    --card-border: #cbd5e1;
+    /* Slate 300 - Photo edge */
+}
+
+body {
+    font-family: 'Inter', 'Noto Sans TC', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    background-image:
+        radial-gradient(circle at 50% 0%, #334155 0%, transparent 70%),
+        linear-gradient(to bottom, transparent, #0f172a);
+}
+
+.game-title {
+    font-family: 'Noto Sans TC', sans-serif;
+    font-weight: 700;
+    text-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+}
+
+/* Enhanced Photo Card Style for Start Screen */
+.photo-card {
+    background-color: #f1f5f9;
+    /* Slate 100 - Photo paper */
+    padding: 0.5rem 0.5rem 2rem 0.5rem;
+    /* Polaroid style bottom padding */
+    box-shadow:
+        0 4px 6px -1px rgba(0, 0, 0, 0.4),
+        0 2px 4px -1px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    border: 1px solid #94a3b8;
+}
+
+.photo-card:hover {
+    transform: scale(1.1) rotate(0deg) !important;
+    z-index: 50 !important;
+    box-shadow:
+        0 20px 25px -5px rgba(0, 0, 0, 0.5),
+        0 10px 10px -5px rgba(0, 0, 0, 0.4);
+}
+
+.photo-card img {
+    filter: sepia(20%) contrast(1.1);
+    /* Slight vintage look */
+    border: 1px solid #cbd5e1;
+}
+
+/* Dossier / Folder Style */
+.dossier {
+    background-color: var(--bg-panel);
+    border: 1px solid #475569;
+    border-top: 4px solid #475569;
+    /* Folder tab hint */
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+}
+
+.dossier:hover {
+    border-top-color: var(--accent-gold);
+    transform: translateY(-2px);
+}
+
+.dossier-solved {
+    background-color: var(--bg-panel);
+    border-color: #64748b;
+    border-top-color: #94a3b8;
+}
+
+/* Action Cards */
+.card {
+    background-color: #334155;
+    border: 1px solid #475569;
+    border-left: 4px solid transparent;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.card:hover {
+    background-color: #475569;
+    transform: translateX(4px);
+    border-left-width: 6px;
+}
+
+.card-a {
+    border-left-color: var(--accent-gold);
+}
+
+.card-b {
+    border-left-color: var(--accent-blue);
+}
+
+.card-selected {
+    background-color: #1e40af;
+    /* Blue 800 */
+    border-left-color: #60a5fa !important;
+    border-color: #3b82f6;
+}
+
+/* Modals */
+.modal {
+    background-color: rgba(15, 23, 42, 0.9);
+    backdrop-filter: blur(8px);
+}
+
+.modal-content {
+    background-color: var(--bg-panel);
+    border: 1px solid #475569;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+}
+
+.clue-true {
+    color: #a3e635;
+    font-weight: 700;
+    text-shadow: 0 0 10px rgba(163, 230, 53, 0.3);
+}
+
+.clue-false {
+    color: #f87171;
+    font-weight: 700;
+}
+
+/* Category Buttons */
+.category-btn {
+    width: 100%;
+    text-align: left;
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+    border: 1px solid transparent;
+    border-left: 2px solid #475569;
+    background: linear-gradient(90deg, #334155 0%, transparent 100%);
+    color: var(--text-muted);
+    transition: all 0.2s;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+    letter-spacing: 0.05em;
+}
+
+.category-btn:hover {
+    padding-left: 1.5rem;
+    color: var(--text-main);
+    border-left-color: var(--text-muted);
+}
+
+.category-btn.active {
+    background: linear-gradient(90deg, #f1f5f9 0%, transparent 100%);
+    color: #0f172a;
+    border-left: 4px solid var(--accent-gold);
+    box-shadow: 4px 0 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Paper Texture */
+.paper-texture {
+    background-color: #f1f5f9;
+    background-image:
+        linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+    background-size: 20px 20px;
+    box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.1);
+    color: #1e293b;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.folder-bg {
+    background-color: #475569;
+    border: 1px solid #64748b;
+    box-shadow:
+        5px 5px 15px rgba(0, 0, 0, 0.5),
+        inset 1px 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Stamps and Effects */
+.highlighter-hover:hover {
+    background: linear-gradient(120deg, rgba(251, 191, 36, 0.3) 0%, rgba(251, 191, 36, 0.3) 100%);
+    cursor: pointer;
+}
+
+.stamp-top-secret {
+    border: 4px double var(--accent-red);
+    color: var(--accent-red);
+    transform: rotate(-10deg);
+    font-weight: 900;
+    letter-spacing: 0.2em;
+    opacity: 0.8;
+    mix-blend-mode: multiply;
+}
+
+/* HUD / Stats Bar */
+.hud-container {
+    background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+    border: 1px solid #475569;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+}
+
+.hud-stat-label {
+    font-family: 'Courier New', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+
+.hud-value {
+    font-family: 'Courier New', monospace;
+    font-weight: 700;
+    text-shadow: 0 0 10px rgba(251, 191, 36, 0.2);
+}
+
+.cursor-magnify {
+    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewport="0 0 32 32" style="fill:black;font-size:24px"><text y="28" font-size="24">🔍</text></svg>') 16 16, auto;
+    /* Center hotspot */
+}
+
+/* Toast Notification */
+#toast-container {
+    position: fixed;
+    top: 15%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.toast-message {
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    font-weight: bold;
+    font-size: 1.1rem;
+    border-left: 5px solid #ef4444;
+    /* Red for simple error vibe */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    animation: toast-fade-in 0.3s ease-out forwards;
+    opacity: 0;
+    transform: translateY(-20px);
+}
+
+@keyframes toast-fade-in {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.toast-fade-out {
+    animation: toast-fade-out 0.3s ease-in forwards;
+}
+
+@keyframes toast-fade-out {
+    to {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}

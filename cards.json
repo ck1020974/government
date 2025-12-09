@@ -1,0 +1,250 @@
+{
+    "a_central": {
+        "type": "A",
+        "text": "是否隸屬中央？",
+        "cat": "level",
+        "val": "central",
+        "condition": {
+            "field": "branch",
+            "value": "central"
+        }
+    },
+    "a_local": {
+        "type": "A",
+        "text": "是否隸屬地方？",
+        "cat": "level",
+        "val": "local",
+        "condition": {
+            "field": "branch",
+            "value": "local"
+        }
+    },
+    "a_executive": {
+        "type": "A",
+        "text": "是否為行政職？",
+        "cat": "type",
+        "val": "executive",
+        "condition": {
+            "field": "type",
+            "value": "executive"
+        }
+    },
+    "a_representative": {
+        "type": "A",
+        "text": "是否為民意代表？",
+        "cat": "type",
+        "val": "legislative",
+        "condition": {
+            "field": "type",
+            "value": "legislative"
+        }
+    },
+    "a_elected": {
+        "type": "A",
+        "text": "是否為民選？",
+        "cat": "origin",
+        "val": "elected",
+        "condition": {
+            "field": "isElected",
+            "value": true
+        }
+    },
+    "b_age_23": {
+        "type": "B",
+        "category": "age",
+        "text": "參選門檻是 23 歲嗎？",
+        "condition": {
+            "field": "ageLimit",
+            "value": 23
+        }
+    },
+    "b_age_26": {
+        "type": "B",
+        "category": "age",
+        "text": "參選門檻是 26 歲嗎？",
+        "condition": {
+            "field": "ageLimit",
+            "value": 26
+        }
+    },
+    "b_age_30": {
+        "type": "B",
+        "category": "age",
+        "text": "參選門檻是 30 歲嗎？",
+        "condition": {
+            "field": "ageLimit",
+            "value": 30
+        }
+    },
+    "b_age_40": {
+        "type": "B",
+        "category": "age",
+        "text": "參選門檻是 40 歲嗎？",
+        "condition": {
+            "field": "ageLimit",
+            "value": 40
+        }
+    },
+    "b_age_none": {
+        "type": "B",
+        "category": "age",
+        "text": "沒有特定參選門檻嗎？",
+        "condition": {
+            "field": "ageLimit",
+            "value": null
+        }
+    },
+    "b_power_exec": {
+        "type": "B",
+        "category": "power",
+        "text": "屬於「行政」權嗎？",
+        "condition": {
+            "field": "type",
+            "value": "executive"
+        }
+    },
+    "b_power_legis": {
+        "type": "B",
+        "category": "power",
+        "text": "屬於「立法」權嗎？",
+        "condition": {
+            "field": "type",
+            "value": "legislative"
+        }
+    },
+    "b_power_judic": {
+        "type": "B",
+        "category": "power",
+        "text": "屬於「司法」權嗎？",
+        "condition": {
+            "field": "type",
+            "value": "judicial"
+        }
+    },
+    "b_power_exam": {
+        "type": "B",
+        "category": "power",
+        "text": "屬於「考試」權嗎？",
+        "condition": {
+            "field": "type",
+            "value": "examination"
+        }
+    },
+    "b_power_control": {
+        "type": "B",
+        "category": "power",
+        "text": "屬於「監察」權嗎？",
+        "condition": {
+            "field": "type",
+            "value": "control"
+        }
+    },
+    "b_level_central": {
+        "type": "B",
+        "category": "level",
+        "text": "層級是「中央」嗎？",
+        "condition": {
+            "field": "level",
+            "value": "central"
+        }
+    },
+    "b_level_dean": {
+        "type": "B",
+        "category": "level",
+        "text": "層級是「院長」嗎？",
+        "condition": {
+            "field": "name",
+            "value": [
+                "行政院長",
+                "立法院長",
+                "考試院院長",
+                "監察院院長",
+                "司法院院長"
+            ]
+        }
+    },
+    "b_level_special": {
+        "type": "B",
+        "category": "level",
+        "text": "層級是「直轄市」嗎？",
+        "condition": {
+            "field": "level",
+            "value": "special_municipality"
+        }
+    },
+    "b_level_county": {
+        "type": "B",
+        "category": "level",
+        "text": "層級是「縣(市)」嗎？",
+        "condition": {
+            "field": "level",
+            "value": "county_city"
+        }
+    },
+    "b_level_township": {
+        "type": "B",
+        "category": "level",
+        "text": "層級是「鄉鎮市區」嗎？",
+        "condition": {
+            "field": "level",
+            "value": [
+                "township",
+                "district"
+            ]
+        }
+    },
+    "b_level_village": {
+        "type": "B",
+        "category": "level",
+        "text": "層級是「村里」嗎？",
+        "condition": {
+            "field": "level",
+            "value": "village"
+        }
+    },
+    "b_origin_elected": {
+        "type": "B",
+        "category": "origin",
+        "text": "是否為「民選」產生？",
+        "condition": {
+            "field": "origin",
+            "value": "elected"
+        }
+    },
+    "b_origin_prez_nom": {
+        "type": "B",
+        "category": "origin",
+        "text": "是否為「總統提名」？",
+        "condition": {
+            "field": "origin",
+            "value": "president_nominated"
+        }
+    },
+    "b_origin_prez_app": {
+        "type": "B",
+        "category": "origin",
+        "text": "是否為「總統任命」？",
+        "condition": {
+            "field": "origin",
+            "value": "president_appointed"
+        }
+    },
+    "b_origin_mayor_app": {
+        "type": "B",
+        "category": "origin",
+        "text": "是否為「市長任命」？",
+        "condition": {
+            "field": "origin",
+            "value": "mayor_appointed"
+        }
+    },
+    "b_origin_member": {
+        "type": "B",
+        "category": "origin",
+        "text": "是否為「委員互選」？",
+        "condition": {
+            "field": "origin",
+            "value": "member_elected"
+        }
+    }
+}
