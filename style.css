@@ -14,7 +14,13 @@
     --accent-blue: #3b82f6;
     /* Blue 500 */
     --card-border: #cbd5e1;
+    --card-border: #cbd5e1;
     /* Slate 300 - Photo edge */
+}
+
+html {
+    /* Set base font size to 80% (approx 12.8px) to scale down the entire UI */
+    font-size: 80%;
 }
 
 body {
